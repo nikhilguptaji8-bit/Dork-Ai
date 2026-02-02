@@ -10,7 +10,7 @@ const App: React.FC = () => {
   const [aiResponse, setAiResponse] = useState<AIResponse | null>(null);
   const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
   const [error, setError] = useState<string | null>(null);
-  
+
   const searchIdRef = useRef<number>(0);
 
   const handleSearch = async (e?: React.FormEvent) => {
@@ -34,7 +34,8 @@ const App: React.FC = () => {
     } catch (err) {
       if (searchIdRef.current !== currentSearchId) return;
       console.error(err);
-      setError("An error occurred while communicating with the neural network.");
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(`Error: ${errorMessage}`);
       setStatus(AppStatus.ERROR);
     }
   };
@@ -58,7 +59,7 @@ const App: React.FC = () => {
   const handleActionClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (status === AppStatus.SEARCHING) {
       handleStop();
     } else if (status === AppStatus.COMPLETED || status === AppStatus.ERROR) {
@@ -86,16 +87,16 @@ const App: React.FC = () => {
       </header>
 
       <main className={`flex-1 flex flex-col items-center justify-center px-4 transition-all duration-700 pt-20 pb-32 ${aiResponse || status === AppStatus.SEARCHING ? 'justify-start' : 'justify-center'}`}>
-        
+
         <div className={`w-full max-w-4xl flex flex-col items-center transition-all duration-1000 ${aiResponse || status === AppStatus.SEARCHING ? 'mt-8' : 'mt-0'}`}>
           <Logo />
 
           <div className="w-full max-w-2xl relative group mb-12">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-red-900/50 to-red-600/50 rounded-full blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
-            
+
             <div className="relative flex items-center bg-[#150202] rounded-full border border-red-900/40 focus-within:border-red-600/60 transition-all duration-300 overflow-hidden px-6">
               <form onSubmit={handleSearch} className="flex-1 flex items-center">
-                <input 
+                <input
                   type="text"
                   placeholder="Type topic to generate dorks..."
                   value={query}
@@ -104,7 +105,7 @@ const App: React.FC = () => {
                   className="flex-1 bg-transparent border-none outline-none text-white pt-5 pb-3 text-lg placeholder-red-900/40 disabled:opacity-50"
                 />
 
-                <button 
+                <button
                   type={status === AppStatus.IDLE ? "submit" : "button"}
                   onClick={handleActionClick}
                   className="ml-2 p-2 text-red-600 hover:text-red-500 transition-all duration-300 drop-shadow-[0_0_8px_rgba(255,0,0,0.5)] transform active:scale-90 translate-y-1"
@@ -158,7 +159,7 @@ const App: React.FC = () => {
                   {aiResponse.message}
                 </div>
               </div>
-              
+
               {aiResponse.type === 'dorks' && aiResponse.dorks && (
                 <div className="space-y-2 mb-8">
                   {aiResponse.dorks.map((item, idx) => (
@@ -173,10 +174,10 @@ const App: React.FC = () => {
                   <h3 className="text-red-600 font-cyber text-xs uppercase tracking-[0.2em] mb-4">Verification Sources</h3>
                   <div className="flex flex-wrap gap-3">
                     {aiResponse.sources.map((source, idx) => (
-                      <a 
-                        key={idx} 
-                        href={source.url} 
-                        target="_blank" 
+                      <a
+                        key={idx}
+                        href={source.url}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="text-[10px] bg-red-950/40 border border-red-900/40 px-3 py-1.5 rounded-full text-gray-400 hover:text-red-400 hover:border-red-600/50 transition-all"
                       >

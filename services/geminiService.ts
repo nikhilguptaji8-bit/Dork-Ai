@@ -2,7 +2,9 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AIResponse, GroundingSource } from "../types";
 import { DORK_AI_INSTRUCTIONS } from "./systemInstructions";
 
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+console.log("API Key present:", !!apiKey, "Length:", apiKey?.length);
+const ai = new GoogleGenAI({ apiKey });
 
 export const getAIResponse = async (query: string): Promise<AIResponse> => {
   const response = await ai.models.generateContent({
@@ -46,7 +48,7 @@ export const getAIResponse = async (query: string): Promise<AIResponse> => {
 
     const sources: GroundingSource[] = [];
     const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
-    
+
     if (groundingChunks) {
       groundingChunks.forEach((chunk: any) => {
         if (chunk.web && chunk.web.uri && chunk.web.title) {
